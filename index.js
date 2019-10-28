@@ -32,17 +32,27 @@ server.get('/api/users', (req, res) => {
             res.status(200).json(users)
         })
         .catch((error) => {
-            console.log(error, 'There was an issue retreiving data')
+            res.status(500).json({ error: "The users information could not be retrieved." })
         })
 })
 
 server.get('/api/users/:id', (req, res) => {
     const id = req.params.id;
+    const data = req.body;
 
-    db.findById(id)
-        .then(users => {
-            res.status(200).json(users)
-        })
+    if (data) {
+        db.findById(id)
+            .then(users => {
+                res.status(200).json(users)
+            })
+            .catch(() => {
+                res.status(500).json({ error: "The user information could not be retrieved." })
+            })
+    } else {
+
+        res.status(404).json({ message: "The user with the specified ID does not exist." })
+    }
+
 })
 
 server.delete('/api/users/:id', (req, res) => {
@@ -53,6 +63,22 @@ server.delete('/api/users/:id', (req, res) => {
         .catch((error) => {
             res.status(500).json({ errorMessage: `could not delete user ${id}` })
         })
+})
+
+server.put('/api/users/:id', (req, res) => {
+    const data = req.body;
+    const id = req.params.id;
+    if (data.name && data.bio) {
+        db.update(id, data)
+            .then(res => {
+                res.status(200).json({ message: "User information has been updated." })
+            })
+            .catch(err => {
+                res.status(400).json({ errorMessage: 'There was an error' })
+            })
+    } else {
+        res.status(400).json({ errorMessage: 'Pease Provide name and bio for the user' })
+    }
 })
 
 
