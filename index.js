@@ -38,28 +38,31 @@ server.get('/api/users', (req, res) => {
 
 server.get('/api/users/:id', (req, res) => {
     const id = req.params.id;
-    const data = req.body;
 
-    if (data) {
-        db.findById(id)
-            .then(users => {
-                res.status(200).json(users)
-            })
-            .catch(() => {
-                res.status(500).json({ error: "The user information could not be retrieved." })
-            })
-    } else {
-
-        res.status(404).json({ message: "The user with the specified ID does not exist." })
-    }
+    db.findById(id)
+        .then(user => {
+            if (user) {
+                res.status(200).json(user)
+            } else {
+                res.status(404).json({ message: "The user with the specified ID does not exist." })
+            }
+        })
+        .catch(() => {
+            res.status(500).json({ error: "The user information could not be retrieved." })
+        })
 
 })
 
 server.delete('/api/users/:id', (req, res) => {
     const id = req.params.id;
-
     db.remove(id)
-        .then(() => res.status(200).json({ message: `user ${id} was deleted successfully.` }))
+        .then(user => {
+            if (user) {
+                res.status(200).json({ message: `user ${id} was deleted successfully.` })
+            } else {
+                res.status(404).json({ message: "The user with the specified ID does not exist." })
+            }
+        })
         .catch((error) => {
             res.status(500).json({ errorMessage: `could not delete user ${id}` })
         })
@@ -71,7 +74,11 @@ server.put('/api/users/:id', (req, res) => {
     if (data.name && data.bio) {
         db.update(id, data)
             .then(res => {
-                res.status(200).json({ message: "User information has been updated." })
+                if (res) {
+                    res.status(200).json({ message: "User information has been updated." })
+                } else {
+                    res.status(404).json({ message: "The user with the specified ID does not exist." })
+                }
             })
             .catch(err => {
                 res.status(400).json({ errorMessage: 'There was an error' })
