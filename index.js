@@ -73,8 +73,8 @@ server.put('/api/users/:id', (req, res) => {
     const id = req.params.id;
     if (data.name && data.bio) {
         db.update(id, data)
-            .then(res => {
-                if (res) {
+            .then(update => {
+                if (update) {
                     res.status(200).json({ message: "User information has been updated." })
                 } else {
                     res.status(404).json({ message: "The user with the specified ID does not exist." })
